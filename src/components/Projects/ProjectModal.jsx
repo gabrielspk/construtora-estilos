@@ -8,23 +8,77 @@ import {
   Factory,
   MapPin,
   X,
+  PlayCircle,
 } from "lucide-react";
 import { ease } from "../../utils/animations";
 
+const SWIPE_THRESHOLD = 64;
+
+const imageVariants = {
+  enter: (direction) => ({
+    opacity: 0,
+    scale: 1.02,
+    x: direction > 0 ? 90 : -90,
+  }),
+  center: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+  },
+  exit: (direction) => ({
+    opacity: 0,
+    scale: 0.98,
+    x: direction > 0 ? -90 : 90,
+  }),
+};
+
 export default function ProjectModal({ project, onClose }) {
   const [imgIdx, setImgIdx] = useState(0);
-  const images = project?.images?.length ? project.images : project?.cover ? [project.cover] : [];
-  const hasImages = images.length > 0;
+  const [direction, setDirection] = useState(1);
+
+  const media = project?.media?.length
+    ? project.media
+    : [
+      ...(project?.images?.length
+        ? project.images.map((src) => ({ type: "image", src }))
+        : project?.cover
+          ? [{ type: "image", src: project.cover }]
+          : []),
+      ...[
+        ...(project?.video ? [project.video] : []),
+        ...(project?.videos ?? []),
+      ].map((src) => ({ type: "video", src, poster: project?.cover })),
+    ];
+
+  const hasMedia = media.length > 0;
+  const currentMedia = media[imgIdx];
 
   const next = useCallback(() => {
-    if (hasImages) setImgIdx((value) => (value + 1) % images.length);
-  }, [hasImages, images.length]);
+    if (hasMedia) {
+      setDirection(1);
+      setImgIdx((value) => (value + 1) % media.length);
+    }
+  }, [hasMedia, media.length]);
 
   const prev = useCallback(() => {
-    if (hasImages) {
-      setImgIdx((value) => (value - 1 + images.length) % images.length);
+    if (hasMedia) {
+      setDirection(-1);
+      setImgIdx((value) => (value - 1 + media.length) % media.length);
     }
-  }, [hasImages, images.length]);
+  }, [hasMedia, media.length]);
+
+  const selectMedia = (index) => {
+    if (index === imgIdx) return;
+    setDirection(index > imgIdx ? 1 : -1);
+    setImgIdx(index);
+  };
+
+  const handleDragEnd = (_, info) => {
+    if (media.length <= 1 || currentMedia?.type === "video") return;
+
+    if (info.offset.x <= -SWIPE_THRESHOLD) next();
+    if (info.offset.x >= SWIPE_THRESHOLD) prev();
+  };
 
   useEffect(() => {
     if (!project) return;
@@ -94,47 +148,69 @@ export default function ProjectModal({ project, onClose }) {
 
             <div className="grid min-h-0 flex-1 overflow-y-auto overscroll-contain lg:grid-cols-[1fr_380px] lg:overflow-hidden">
               <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#003067] sm:h-[340px] sm:min-h-[340px] lg:h-auto lg:min-h-[420px]">
-                {hasImages ? (
+                {hasMedia ? (
                   <>
-                    <AnimatePresence mode="wait">
-                      <motion.img
-                        key={images[imgIdx]}
-                        src={images[imgIdx]}
-                        alt={project.name}
-                        initial={{ opacity: 0, scale: 1.04 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ duration: 0.4 }}
-                        className="h-full w-full object-cover"
-                      />
+                    <AnimatePresence mode="wait" custom={direction}>
+                      {currentMedia?.type === "video" ? (
+                        <motion.video
+                          key={currentMedia.src}
+                          src={currentMedia.src}
+                          poster={currentMedia.poster}
+                          controls
+                          autoPlay
+                          muted
+                          playsInline
+                          className="h-full w-full bg-black object-contain"
+                        />
+                      ) : (
+                        <motion.img
+                          key={currentMedia.src}
+                          src={currentMedia.src}
+                          alt={project.name}
+                          custom={direction}
+                          variants={imageVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                          transition={{ duration: 0.32, ease }}
+                          drag={media.length > 1 ? "x" : false}
+                          dragConstraints={{ left: 0, right: 0 }}
+                          dragElastic={0.18}
+                          onDragEnd={handleDragEnd}
+                          draggable={false}
+                          className="h-full w-full cursor-grab select-none object-cover active:cursor-grabbing"
+                          style={{ touchAction: "pan-y" }}
+                        />
+                      )}
                     </AnimatePresence>
 
-                    {images.length > 1 && (
+                    {media.length > 1 && (
                       <>
                         <button
                           onClick={prev}
                           className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#003067] shadow-xl backdrop-blur transition-all hover:scale-105 hover:bg-white sm:left-4 sm:h-12 sm:w-12"
-                          aria-label="Imagem anterior"
+                          aria-label="Mídia anterior"
                         >
                           <ChevronLeft size={22} />
                         </button>
+
                         <button
                           onClick={next}
                           className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#003067] shadow-xl backdrop-blur transition-all hover:scale-105 hover:bg-white sm:right-4 sm:h-12 sm:w-12"
-                          aria-label="Próxima imagem"
+                          aria-label="Próxima mídia"
                         >
                           <ChevronRight size={22} />
                         </button>
 
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur">
-                          {imgIdx + 1} / {images.length}
+                          {imgIdx + 1} / {media.length}
                         </div>
                       </>
                     )}
                   </>
                 ) : (
                   <div className="flex h-full min-h-[280px] items-center justify-center p-8 text-center text-sm font-semibold text-white/80 sm:min-h-[340px] lg:min-h-[420px]">
-                    Nenhuma imagem cadastrada para esta obra.
+                    Nenhuma mídia cadastrada para esta obra.
                   </div>
                 )}
               </div>
@@ -157,22 +233,48 @@ export default function ProjectModal({ project, onClose }) {
                       <div className="mb-1.5 flex items-center gap-1.5 text-xs text-slate-400">
                         <Icon size={12} /> {label}
                       </div>
-                      <div className="break-words text-xs font-bold text-[#003067] sm:text-sm">{value}</div>
+                      <div className="break-words text-xs font-bold text-[#003067] sm:text-sm">
+                        {value}
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                <p className="mt-5 flex-1 text-sm leading-6 text-slate-500 sm:mt-6 sm:leading-7">{project.description}</p>
+                <p className="mt-5 flex-1 text-sm leading-6 text-slate-500 sm:mt-6 sm:leading-7">
+                  {project.description}
+                </p>
 
-                {images.length > 1 && (
+                {media.length > 1 && (
                   <div className="mt-6 flex gap-2.5 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0">
-                    {images.map((img, index) => (
+                    {media.map((item, index) => (
                       <button
-                        key={img}
-                        onClick={() => setImgIdx(index)}
-                        className={`w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all lg:w-auto ${index === imgIdx ? "scale-95 border-[#008ece] shadow-lg shadow-[#008ece]/20" : "border-transparent hover:border-slate-200"}`}
+                        key={`${item.type}-${item.src}`}
+                        onClick={() => selectMedia(index)}
+                        className={`w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all lg:w-auto ${index === imgIdx
+                            ? "scale-95 border-[#008ece] shadow-lg shadow-[#008ece]/20"
+                            : "border-transparent hover:border-slate-200"
+                          }`}
                       >
-                        <img src={img} alt="" className="h-14 w-full object-cover sm:h-16" />
+                        {item.type === "video" ? (
+                          <div className="relative h-14 w-full bg-black sm:h-16">
+                            <img
+                              src={item.poster}
+                              alt="Thumbnail do vídeo"
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover"
+                            />
+                            <PlayCircle className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-white" />
+                          </div>
+                        ) : (
+                          <img
+                            src={item.src}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="h-14 w-full object-cover sm:h-16"
+                          />
+                        )}
                       </button>
                     ))}
                   </div>
@@ -191,6 +293,7 @@ function getCategoryInfoClass(category) {
     Fotovoltaico: "bg-amber-100 text-amber-700",
     Comercial: "bg-emerald-100 text-emerald-700",
     Industrial: "bg-slate-100 text-slate-700",
+    Logístico: "bg-blue-100 text-blue-700",
   };
 
   return categories[category] ?? "bg-blue-100 text-blue-700";
