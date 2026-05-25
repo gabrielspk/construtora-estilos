@@ -150,7 +150,7 @@ export const projects = [
     category: "Industrial",
     area: "3.859,85 m²",
     year: "2023",
-    description: "Galpão para locação construido em Santana de paraníba com mesanino, e subsolo.",
+    description: "Galpão desenvolvido para locação em Santana de Parnaíba, executado desde a fundação até os acabamentos finais, com estrutura completa incluindo mezanino e subsolo. O projeto foi concebido para atender às necessidades de empresas que buscam um espaço versátil e funcional para suas operações, oferecendo uma solução eficiente e de alta qualidade para locação industrial.",
     cover: getImage("galpao_santana/fotos/foto1.jpeg"),
     media: [
       videoMedia("locacao_santana", "video8.mp4", "galpao_santana", "foto19.jpeg"),
