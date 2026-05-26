@@ -158,7 +158,6 @@ export default function ProjectModal({ project, onClose }) {
                           poster={currentMedia.poster}
                           controls
                           autoPlay
-                          muted
                           playsInline
                           className="h-full w-full bg-black object-contain"
                         />
