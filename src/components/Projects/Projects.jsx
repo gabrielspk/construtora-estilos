@@ -22,7 +22,7 @@ export default function Projects() {
               <Sparkles size={13} className="text-[#008ece]" /> Portfólio de obras
             </span>
             <h2 className="text-4xl font-black tracking-tight text-[#003067] md:text-5xl">
-              Galeria de obras realizadas<br />com excelência.
+              Galeria de obras realizadas<br />com excelência
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-500 max-w-xl">
               Cada projeto representa nosso comprometimento com qualidade, prazo e resultado superior. Clique em uma obra para explorar a galeria completa.
