@@ -21,7 +21,7 @@ export default function Hero() {
       <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full bg-[#008ece]/20 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-[#003067]/40 blur-3xl pointer-events-none" />
 
-      <div className="relative mx-auto max-w-7xl px-5 pt-28 pb-20 lg:px-10 w-full">
+      <div className="relative mx-auto max-w-7xl px-5 pt-28 pb-20 lg:px-10 lg:pt-40 w-full">
         <div className="grid lg:grid-cols-[1fr_0.45fr] gap-16 items-center">
           <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, ease }}>
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }}

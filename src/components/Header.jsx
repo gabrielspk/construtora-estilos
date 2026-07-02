@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
-import logoHeader from "../assets/brand/logo/logo.jpg";
+import logoHeader from "../assets/brand/logo/construtora_estilos_logo.svg";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -11,7 +11,7 @@ export default function Header() {
     <img
       src={logoHeader}
       alt="Construtora Estilos"
-      className="h-16 w-auto max-w-[150px] rounded-md object-contain sm:h-20 sm:max-w-[180px]"
+      className="h-20 w-auto max-w-[220px] rounded-md object-contain sm:h-24 sm:max-w-[260px] lg:max-w-[280px]"
     />
   );
 

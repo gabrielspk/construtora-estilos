@@ -1,4 +1,4 @@
-import footerLogo from "../assets/brand/logo/logo.jpg";
+import footerLogo from "../assets/brand/logo/construtora_estilos_logo.svg";
 
 const socialLinks = [
   {
@@ -99,7 +99,7 @@ export default function Footer() {
           <img
             src={footerLogo}
             alt="Construtora Estilos"
-            className="h-14 w-auto max-w-[150px] rounded-md object-contain sm:h-16 sm:max-w-[165px]"
+            className="h-20 w-auto max-w-[220px] rounded-md object-contain sm:max-w-[240px] lg:h-24 lg:max-w-[280px]"
           />
           <nav className="flex flex-wrap justify-center gap-6">
             {["Sobre", "Serviços", "Obras", "Clientes", "Contato"].map((link) => (
