@@ -29,12 +29,14 @@ export default function ProjectCard({ project, onSelect }) {
             playsInline
             className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110"
           />
-        ) : (
+        ) : project.cover ? (
           <img
             src={project.cover}
             alt={project.name}
             className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110"
           />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,142,206,0.35),transparent_35%),linear-gradient(135deg,#003067,#001c3f)]" />
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#003067]/95 via-[#003067]/40 to-transparent" />
